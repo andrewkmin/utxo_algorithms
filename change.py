@@ -1,23 +1,25 @@
+import sys
+
 utxos = [
     {
         "val": 2,
-        "date": 1
-    },
-    {
-        "val": 4,
-        "date": 2
-    },
-    {
-        "val": 6,
-        "date": 3
-    },
-    {
-        "val": 8,
-        "date": 4
-    },
-    {
-        "val": 10,
         "date": 5
+    },
+    {
+        "val": 2,
+        "date": 9
+    },
+    {
+        "val": 2,
+        "date": 10
+    },
+    {
+        "val": 2,
+        "date": 11
+    },
+    {
+        "val": 2,
+        "date": 12
     }
 ]
 
@@ -58,32 +60,42 @@ def calc_change(utxos, value) :
         print("No valid utxos")
 
 def tie_breaker(sorted_by_value) :
-    print("yo", sorted_by_value)
-    # do tie-breakers here in case change is equal
     i = 0
-    tiebreaker = set()
+    tiebreaker = []
+    min_change = sorted_by_value[0][1]
 
-    # alternative method (to prevent duplicate additions to set): 
-    # keep track of min change. add all entries with that same min change. when 
-    # you reach one with a different min change (aka a greater one), stop
     while (i < len(sorted_by_value)) :
-            # if we reached the end of the range
-            if ((i+1) == len(sorted_by_value)) : 
-                break
-            elif (sorted_by_value[i][1] == sorted_by_value[i+1][1]) :
-                # if consecutive 
-                tiebreaker.add(sorted_by_value[i])
-                tiebreaker.add(sorted_by_value[i+1])
+        # avoid non-min change date-ranges
+        if (min_change != sorted_by_value[i][1]) :
+            break
+        else :
+            tiebreaker.append(sorted_by_value[i])
+        # increment
+        i += 1
 
-            # increment
-            i += 1
+    print(tiebreaker)
 
-        # store amount change separately so we can 
-        # create a new dictionary
+    diff = sys.maxsize
+    tracker = tiebreaker[0]
+    for x in tiebreaker : 
+        min_range = x[0]
+        print('min range', min_range)
+        range_arr = min_range.split(":")
+        temp = int(range_arr[1]) - int(range_arr[0]) 
+
+        if (temp <= diff) : 
+            diff = temp
+            tracker = list(map(int, range_arr))
+
+    print ('# UTXOs included:', diff + 1)
+    print ('Change:', min_change)
+    print ('Beginning:', utxos[tracker[0]]["date"])
+    print ('End:', utxos[tracker[1]]["date"])
+    print ('Time elapsed:', utxos[tracker[1]]["date"] - utxos[tracker[0]]["date"])
 
 print(utxos)
 # utxos.sort(key=lambda x: x["val"], reverse=True)
-calc_change(utxos, 7)
+calc_change(utxos, 2)
 
 # assumptions: all utxos in a date range must be used -- crucial
 # utxos come presorted in order of date
