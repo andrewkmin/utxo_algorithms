@@ -6,19 +6,19 @@ utxos = [
         "date": 5
     },
     {
-        "val": 2,
+        "val": 5,
         "date": 9
     },
     {
-        "val": 2,
+        "val": 9,
         "date": 10
     },
     {
-        "val": 2,
+        "val": 24,
         "date": 11
     },
     {
-        "val": 2,
+        "val": 12,
         "date": 12
     }
 ]
@@ -33,14 +33,13 @@ def calc_change(utxos, value) :
     memo = {}
     i = 0
     while (i < len(utxos)) :
-        remainder = value
+        sum = 0
         temp = 0
 
         j = i 
         while (j < len(utxos)) :
-            if (utxos[j]["val"] <= remainder) :
-                flag = True
-                remainder -= utxos[j]["val"]
+            if (sum < value) :
+                sum += utxos[j]["val"]
             else :
                 temp = j - 1
                 break
@@ -49,15 +48,41 @@ def calc_change(utxos, value) :
 
         temp = j - 1
         some_str = str(i) + ":" + str(temp)
-        memo[some_str] = remainder
+
+
+        storage = sum - value
+        # remainder
+        if (storage >= 0) :
+            flag = True
+            memo[some_str] = storage
+        else :
+            memo[some_str] = sys.maxsize
         i += 1
 
     if (flag) :
         sorted_by_value = sorted(memo.items(), key=lambda kv: kv[1])
-        tie_breaker(sorted_by_value)
+        print('sorted_by_value', sorted_by_value)
+        result = sorted_by_value[0][0].split(":")
+        num_utxos = int(result[1]) - int(result[0]) + 1
+        beginning = utxos[int(result[0])]["date"]
+        end = utxos[int(result[1])]["date"]
+        elapsed_time = end - beginning
+        change = sorted_by_value[0][1]
+
+        print ('Amount sent:', value)
+        print ('Change:', change)
+        print ('# UTXOs included:', num_utxos)
+        print ('Range start:', beginning)
+        print ('Range end:', end)
+        print ('Time elapsed:', elapsed_time)
+
+
+        print(type(utxos))
+        # check for all negatives
+        # tie_breaker(sorted_by_value)
         
     else :
-        print("No valid utxos")
+        print("Insufficient funds.")
 
 def tie_breaker(sorted_by_value) :
     i = 0
@@ -95,7 +120,7 @@ def tie_breaker(sorted_by_value) :
 
 print(utxos)
 # utxos.sort(key=lambda x: x["val"], reverse=True)
-calc_change(utxos, 2)
+calc_change(utxos, 51)
 
 # assumptions: all utxos in a date range must be used -- crucial
 # utxos come presorted in order of date
