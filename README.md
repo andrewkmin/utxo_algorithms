@@ -1,6 +1,6 @@
 # Calculating Change from UTXOs
 #### Summary
-Algorithm is contained in `change.py`. Sample list of UTXOs (containing values and arbitrary UTC dates) is in `utxos.py`. `tiebreaker.py` is code written in case I had to definitively break ties, but this isn't the case. In the case of a tie, I can simply select any of the tied candidates. The script is run from the end of the `change.py` file via the `calc_change` function call, which takes in a list of UTXOs and a value (amount sent). By default, the desired send amount is 81, and the list of UTXOs is imported from the file `utxos.py`. 
+Algorithm is contained in `change.py`. Sample list of UTXOs (containing values and arbitrary UTC dates) is in `utxos.py`. `tiebreaker.py` is code written in case I had to definitively break ties, but this isn't the case. In the case of a tie, I can simply select any of the tied candidates. The script is run from the end of the `change.py` file via the `find_range` function call, which takes in a list of UTXOs and a value (amount sent). By default, the desired send amount is 81, and the list of UTXOs is imported from the file `utxos.py`. 
 
 Given the defaults, the image below shows what would be printed if this script were run via command line: start date, end date, amount change, time elapsed (aka end - start), net amount sent, # UTXOs included, and the list of included UTXOs. 
 ![Success](Image1.png)
