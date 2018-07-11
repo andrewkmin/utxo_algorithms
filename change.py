@@ -11,7 +11,7 @@ from utxos import utxos
 # insufficient funds: print error message,
 # sending amount <= 0: assume this won't happen
 
-def calc_change(utxos, value) :
+def find_range(utxos, value) :
     # flag indicating whether we have a valid solution (i.e. one that doesn't result in negative change)
     flag = False
 
@@ -83,4 +83,4 @@ def calc_change(utxos, value) :
         print("Amount owned:", total_sum)
         print("Desired send amount:", value)
 
-calc_change(utxos, 81)
+find_range(utxos, 81)
