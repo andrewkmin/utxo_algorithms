@@ -1,39 +1,34 @@
+# Andrew Min
+# Programming Blockchain Scholarship Application
+# Note: python 3.6.1
+
 import sys
+from utxos import utxos
 
-utxos = [
-    {
-        "val": 2,
-        "date": 5
-    },
-    {
-        "val": 5,
-        "date": 9
-    },
-    {
-        "val": 9,
-        "date": 10
-    },
-    {
-        "val": 24,
-        "date": 11
-    },
-    {
-        "val": 12,
-        "date": 12
-    }
-]
+# EDGE CASES: 
+# non-valid UTXOS: assume all are valid, 
+# ties: pick any valid range, 
+# insufficient funds: print error message,
+# sending amount <= 0: assume this won't happen
 
-# note: python 3.6.1
-# edge cases: non-valid UTXOS, ties
 def calc_change(utxos, value) :
-    # remainder = value
-
-    # have some kind of flag here 
+    # flag indicating whether we have a valid solution (i.e. one that doesn't result in negative change)
     flag = False
+
+    # dictionary that maps from range of utxo indices to resulting amount of change
     memo = {}
+
+    # total sum across all utxos
+    total_sum = 0
+
     i = 0
     while (i < len(utxos)) :
+        # sum for current range
         sum = 0
+
+        total_sum += utxos[i]["val"]
+
+        # variable used to denote the index at which our date range ends
         temp = 0
 
         j = i 
@@ -43,25 +38,27 @@ def calc_change(utxos, value) :
             else :
                 temp = j - 1
                 break
-
             j += 1
 
         temp = j - 1
-        some_str = str(i) + ":" + str(temp)
+        range_str = str(i) + ":" + str(temp)
+        change = sum - value
 
-
-        storage = sum - value
-        # remainder
-        if (storage >= 0) :
+        if (change >= 0) :
             flag = True
-            memo[some_str] = storage
+            memo[range_str] = change
         else :
-            memo[some_str] = sys.maxsize
+            # allowing negative change is not allowed and would make sorting 
+            # from least to greatest amount of change difficult. 
+            # instead, arbitrarily put max int
+            memo[range_str] = sys.maxsize
+
         i += 1
 
     if (flag) :
+        # sort by change from least to greatest
         sorted_by_value = sorted(memo.items(), key=lambda kv: kv[1])
-        print('sorted_by_value', sorted_by_value)
+
         result = sorted_by_value[0][0].split(":")
         num_utxos = int(result[1]) - int(result[0]) + 1
         beginning = utxos[int(result[0])]["date"]
@@ -69,59 +66,21 @@ def calc_change(utxos, value) :
         elapsed_time = end - beginning
         change = sorted_by_value[0][1]
 
-        print ('Amount sent:', value)
-        print ('Change:', change)
-        print ('# UTXOs included:', num_utxos)
-        print ('Range start:', beginning)
-        print ('Range end:', end)
-        print ('Time elapsed:', elapsed_time)
-
-
-        print(type(utxos))
-        # check for all negatives
-        # tie_breaker(sorted_by_value)
+        print("---------------------")
+        print ("Start date:", beginning)
+        print ("End date:", end)
+        print ("Amount change:", change)
+        print ("Time elapsed:", elapsed_time)
+        print("---------------------")
+        print("DETAILS -- ")
+        print ("Net amount sent:", value)
+        print ("# UTXOs included:", num_utxos)
+        print ("UTXO(s):", utxos[int(result[0]) : int(result[1]) + 1])
         
     else :
-        print("Insufficient funds.")
+        print("ERROR: INSUFFICIENT FUNDS")
+        print("---------------------")
+        print("Amount owned:", total_sum)
+        print("Desired send amount:", value)
 
-def tie_breaker(sorted_by_value) :
-    i = 0
-    tiebreaker = []
-    min_change = sorted_by_value[0][1]
-
-    while (i < len(sorted_by_value)) :
-        # avoid non-min change date-ranges
-        if (min_change != sorted_by_value[i][1]) :
-            break
-        else :
-            tiebreaker.append(sorted_by_value[i])
-        # increment
-        i += 1
-
-    print(tiebreaker)
-
-    diff = sys.maxsize
-    tracker = tiebreaker[0]
-    for x in tiebreaker : 
-        min_range = x[0]
-        print('min range', min_range)
-        range_arr = min_range.split(":")
-        temp = int(range_arr[1]) - int(range_arr[0]) 
-
-        if (temp <= diff) : 
-            diff = temp
-            tracker = list(map(int, range_arr))
-
-    print ('# UTXOs included:', diff + 1)
-    print ('Change:', min_change)
-    print ('Beginning:', utxos[tracker[0]]["date"])
-    print ('End:', utxos[tracker[1]]["date"])
-    print ('Time elapsed:', utxos[tracker[1]]["date"] - utxos[tracker[0]]["date"])
-
-print(utxos)
-# utxos.sort(key=lambda x: x["val"], reverse=True)
-calc_change(utxos, 51)
-
-# assumptions: all utxos in a date range must be used -- crucial
-# utxos come presorted in order of date
-# strategy: start at beginning/end of list of utxos;
+calc_change(utxos, 81)
